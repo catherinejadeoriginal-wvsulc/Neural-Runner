@@ -4,7 +4,7 @@
  */
 
 import { useState, useEffect } from 'react';
-import { Gamepad2, Volume2, VolumeX, Keyboard, Camera, Trophy, BookOpen, ExternalLink, HelpCircle, ArrowRight, Play, Activity } from 'lucide-react';
+import { Gamepad2, Volume2, VolumeX, Keyboard, Camera, Trophy, BookOpen, ExternalLink, HelpCircle, ArrowRight, Play, Pause, Activity } from 'lucide-react';
 import { useTeachableMachine } from './hooks/useTeachableMachine';
 import GameCanvas from './components/GameCanvas';
 import MappingPanel from './components/MappingPanel';
@@ -60,6 +60,14 @@ export default function App() {
     setIsMuted(nextMuted);
   };
 
+  const handlePauseToggle = () => {
+    if (status === 'PLAYING') {
+      setStatus('PAUSED');
+    } else if (status === 'PAUSED') {
+      setStatus('PLAYING');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-cyber-bg text-cyber-green flex flex-col font-mono select-none antialiased relative">
       {/* CRT Scanline overlay effect to deliver the digital arcade feel */}
@@ -111,6 +119,24 @@ export default function App() {
               {isMuted ? <VolumeX size={13} /> : <Volume2 size={13} />}
               <span>{isMuted ? 'MUTE [SOUND_OFF]' : 'ACTIVE [SOUND_ON]'}</span>
             </button>
+
+            {/* Pause/Resume button — only shown during active/paused game */}
+            {(status === 'PLAYING' || status === 'PAUSED') && (
+              <button
+                id="pause-toggle-btn"
+                type="button"
+                onClick={handlePauseToggle}
+                className={`px-3 py-1.5 border-2 text-[11px] font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                  status === 'PAUSED'
+                    ? 'bg-cyber-red/15 border-cyber-red text-cyber-red shadow-cyber-red animate-pulse'
+                    : 'bg-cyber-dark border-[#333] text-slate-400 hover:border-cyber-red hover:text-cyber-red'
+                }`}
+                title={status === 'PAUSED' ? 'Resume Game' : 'Pause Game'}
+              >
+                {status === 'PAUSED' ? <Play size={13} /> : <Pause size={13} />}
+                <span>{status === 'PAUSED' ? '▶ RESUME [PLAY]' : '⏸ PAUSE [BREAK]'}</span>
+              </button>
+            )}
           </div>
         </div>
 

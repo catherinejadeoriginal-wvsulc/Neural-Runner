@@ -4,30 +4,43 @@
 @theme {
   --font-mono: "Share Tech Mono", "Fira Code", ui-monospace, monospace;
   --font-sans: "Share Tech Mono", "Fira Code", system-ui, sans-serif;
-  
-  --color-cyber-bg: #0d0d15;
-  --color-cyber-panel: #151520;
-  --color-cyber-dark: #08080c;
-  --color-cyber-green: #00ff41;
-  --color-cyber-green-dim: #008f11;
-  --color-cyber-red: #ff3e3e;
-  --color-cyber-red-dim: #990000;
-  --color-cyber-amber: #f59e0b;
+
+  /* Blue/Pink neon palette */
+  --color-cyber-bg:        #0a0818;
+  --color-cyber-panel:     #110d24;
+  --color-cyber-dark:      #06040f;
+
+  /* Primary accent — neon electric blue (replaces green) */
+  --color-cyber-green:     #00c8ff;
+  --color-cyber-green-dim: #005577;
+
+  /* Secondary accent — hot pink (replaces red) */
+  --color-cyber-red:       #ff2d9b;
+  --color-cyber-red-dim:   #880055;
+
+  /* Tertiary — amber kept for simulator badge only */
+  --color-cyber-amber:     #f59e0b;
+
+  /* Named aliases for direct use */
+  --color-cyber-blue:      #00c8ff;
+  --color-cyber-blue-dim:  #005577;
+  --color-cyber-pink:      #ff2d9b;
+  --color-cyber-pink-dim:  #880055;
 }
 
 @layer utilities {
   .crt-scanlines {
-    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.3) 50%), 
-                linear-gradient(90deg, rgba(255, 0, 0, 0.05), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.05));
+    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.3) 50%),
+                linear-gradient(90deg, rgba(255, 0, 150, 0.04), rgba(0, 200, 255, 0.02), rgba(100, 0, 255, 0.04));
     background-size: 100% 4px, 6px 100%;
   }
 
   .text-glow {
-    text-shadow: 0 0 8px rgba(0, 255, 65, 0.6);
+    text-shadow: 0 0 10px rgba(0, 200, 255, 0.7), 0 0 20px rgba(0, 200, 255, 0.3);
   }
 
   .text-glow-red {
-    text-shadow: 0 0 8px rgba(255, 62, 62, 0.6);
+    text-shadow: 0 0 10px rgba(255, 45, 155, 0.7), 0 0 20px rgba(255, 45, 155, 0.3);
   }
 
   .shadow-cyber {
@@ -35,17 +48,21 @@
   }
 
   .shadow-cyber-heavy {
-    box-shadow: 6px 6px 0px #333;
+    box-shadow: 6px 6px 0px #1a0f33;
   }
-  
+
   .shadow-cyber-red {
     box-shadow: 4px 4px 0px var(--color-cyber-red-dim);
+  }
+
+  .shadow-cyber-pink {
+    box-shadow: 0 0 16px rgba(255, 45, 155, 0.4), 0 0 32px rgba(255, 45, 155, 0.15);
   }
 }
 
 @keyframes terminal-flicker {
-  0% { opacity: 0.97; }
-  50% { opacity: 1; }
+  0%   { opacity: 0.97; }
+  50%  { opacity: 1; }
   100% { opacity: 0.98; }
 }
 

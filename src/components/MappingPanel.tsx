@@ -42,7 +42,9 @@ export default function MappingPanel({
   updateClassThreshold,
   updateSimulatorProbability
 }: MappingPanelProps) {
-  const [modelInputUrl, setModelInputUrl] = useState('');
+  const [modelInputUrl, setModelInputUrl] = useState(
+    typeof window !== 'undefined' ? window.location.origin + '/model/' : ''
+  );
 
   const submitLoadModel = (e: React.FormEvent) => {
     e.preventDefault();
@@ -134,15 +136,25 @@ export default function MappingPanel({
             </div>
             
             {/* Quick Demo Assist */}
-            <div className="flex gap-2 items-center flex-wrap text-[10px] text-slate-500 mt-1">
-              <span>Need test data?</span>
-              <button
-                type="button"
-                onClick={() => useDemoModelUrl('https://teachablemachine.withgoogle.com/models/C5L7I1sZk/')}
-                className="text-cyber-green font-bold hover:underline cursor-pointer"
-              >
-                [LOAD PRE-TRAINED GESTURES]
-              </button>
+            <div className="flex flex-col gap-1 text-[10px] text-slate-500 mt-1">
+              <div className="flex gap-2 items-center flex-wrap">
+                <span>Model Presets:</span>
+                <button
+                  type="button"
+                  onClick={() => useDemoModelUrl(window.location.origin + '/model/')}
+                  className="text-cyber-amber font-bold hover:underline cursor-pointer"
+                >
+                  [LOAD LOCAL HAPPY/SAD MODEL]
+                </button>
+                <span className="opacity-30">|</span>
+                <button
+                  type="button"
+                  onClick={() => useDemoModelUrl('https://teachablemachine.withgoogle.com/models/C5L7I1sZk/')}
+                  className="text-cyber-green font-bold hover:underline cursor-pointer"
+                >
+                  [LOAD REMOTE GESTURE MODEL]
+                </button>
+              </div>
             </div>
           </form>
 

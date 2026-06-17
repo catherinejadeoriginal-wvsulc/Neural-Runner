@@ -25,9 +25,9 @@ export function useTeachableMachine() {
 
   const [modelURL, setModelURL] = useState('');
   const [classes, setClasses] = useState<ModelClassMapping[]>([
-    { className: 'Jump Pose (e.g. Hands Up)', mappedAction: 'JUMP', threshold: 0.82, currentProbability: 0.0 },
-    { className: 'Crouch Pose (e.g. Hands Down)', mappedAction: 'CROUCH', threshold: 0.82, currentProbability: 0.0 },
-    { className: 'Idle Pose (e.g. Normal stance)', mappedAction: 'NONE', threshold: 0.50, currentProbability: 1.0 }
+    { className: 'happy', mappedAction: 'JUMP', threshold: 0.80, currentProbability: 0.0 },
+    { className: 'sad', mappedAction: 'CROUCH', threshold: 0.80, currentProbability: 0.0 },
+    { className: 'angry', mappedAction: 'NONE', threshold: 0.50, currentProbability: 1.0 }
   ]);
 
   const [activeAction, setActiveAction] = useState<GameAction>('NONE');
@@ -86,17 +86,23 @@ export function useTeachableMachine() {
   const setSimulatorMode = (active: boolean) => {
     setIsSimulator(active);
     if (active) {
-      // Setup mock classes
+      // Setup mock classes matching user model
       setClasses([
-        { className: 'Hands Raised', mappedAction: 'JUMP', threshold: 0.80, currentProbability: 0.0 },
-        { className: 'Squatting / Crouching', mappedAction: 'CROUCH', threshold: 0.80, currentProbability: 0.0 },
-        { className: 'Standing Neutral', mappedAction: 'NONE', threshold: 0.50, currentProbability: 1.0 }
+        { className: 'happy', mappedAction: 'JUMP', threshold: 0.80, currentProbability: 0.0 },
+        { className: 'sad', mappedAction: 'CROUCH', threshold: 0.80, currentProbability: 0.0 },
+        { className: 'angry', mappedAction: 'NONE', threshold: 0.50, currentProbability: 1.0 }
       ]);
       setError(null);
       stopWebcam();
     } else {
       // Clear mock probabilities
       setClasses([]);
+      // Auto-load local model if not loaded yet
+      if (!modelRef.current) {
+        loadModel(window.location.origin + '/model/');
+      } else {
+        startWebcam();
+      }
     }
   };
 
@@ -173,13 +179,23 @@ export function useTeachableMachine() {
       }
 
       // Map incoming model's classes to defaults
-      const mapped: ModelClassMapping[] = labels.map((label, index) => {
-        // Guess default mappings based on common names
+      const mapped: ModelClassMapping[] = labels.map((label) => {
+        // Guess default mappings based on common names or user specs
         let action: GameAction = 'NONE';
         const lowerLabel = label.toLowerCase();
-        if (lowerLabel.includes('jump') || lowerLabel.includes('up') || lowerLabel.includes('raise') || index === 1) {
+        if (
+          lowerLabel.includes('happy') ||
+          lowerLabel.includes('jump') ||
+          lowerLabel.includes('up') ||
+          lowerLabel.includes('raise')
+        ) {
           action = 'JUMP';
-        } else if (lowerLabel.includes('crouch') || lowerLabel.includes('down') || lowerLabel.includes('squat') || index === 2) {
+        } else if (
+          lowerLabel.includes('sad') ||
+          lowerLabel.includes('crouch') ||
+          lowerLabel.includes('down') ||
+          lowerLabel.includes('squat')
+        ) {
           action = 'CROUCH';
         }
 
@@ -321,6 +337,49 @@ export function useTeachableMachine() {
       return next;
     });
   };
+
+  // Auto-load local model in the background on mount
+  useEffect(() => {
+    const initLocalModel = async () => {
+      try {
+        const success = await loadScripts();
+        if (success) {
+          const localUrl = window.location.origin + '/model/';
+          const modelJsonURL = localUrl + 'model.json';
+          const metadataJsonURL = localUrl + 'metadata.json';
+          
+          const loadedModel = await window.tmImage.load(modelJsonURL, metadataJsonURL);
+          modelRef.current = loadedModel;
+          
+          const labels = loadedModel.getClassLabels() as string[];
+          if (labels && labels.length > 0) {
+            const mapped: ModelClassMapping[] = labels.map((label) => {
+              let action: GameAction = 'NONE';
+              const lowerLabel = label.toLowerCase();
+              if (lowerLabel.includes('happy') || lowerLabel.includes('jump') || lowerLabel.includes('up') || lowerLabel.includes('raise')) {
+                action = 'JUMP';
+              } else if (lowerLabel.includes('sad') || lowerLabel.includes('crouch') || lowerLabel.includes('down') || lowerLabel.includes('squat')) {
+                action = 'CROUCH';
+              }
+              return {
+                className: label,
+                mappedAction: action,
+                threshold: 0.80,
+                currentProbability: 0.0
+              };
+            });
+            setClasses(mapped);
+            setModelURL(localUrl);
+            // We keep isSimulator as true on startup so webcam isn't requested until they switch
+          }
+        }
+      } catch (e) {
+        console.log("Local model not pre-loaded on mount (will load when needed):", e);
+      }
+    };
+    
+    initLocalModel();
+  }, []);
 
   return {
     isScriptsLoaded,
