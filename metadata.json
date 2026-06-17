@@ -1,0 +1,6 @@
+{
+  "name": "Teachable Machine 8-Bit Platformer",
+  "description": "An 8-bit retro platformer inspired by Google's Dino game, controlled by either keyboard or custom Teachable Machine pose/image model outputs.",
+  "requestFramePermissions": ["camera"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
